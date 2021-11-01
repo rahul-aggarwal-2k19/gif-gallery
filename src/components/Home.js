@@ -3,7 +3,7 @@ import Spinner from "./Spinner";
 import VideoPanel from "./VideoPanel";
 
 function Home(props) {
-  const { apiKey, tag } = props;
+  const { apiKey, tag ,setProgress } = props;
 
   const [urls, setUrls] = useState([]);
   const [searchTag, setsearchTag] = useState(tag);
@@ -13,12 +13,16 @@ function Home(props) {
   // Fetch the GIF from the api
   const fetchGIFS = async () => {
     setloading(true);
+    setProgress(30);
     const endpoint = `https://api.giphy.com/v1/gifs/search?api_key=${apiKey}&q=${searchTag}&limit=30&offset=0&rating=g&lang=hi`;
     const result = await fetch(endpoint);
+    setProgress(50);
     const data = await result.json();
+    setProgress(80);
     setUrls(data.data);
     setsearchTag("");
     setloading(false);
+    setProgress(100);
   };
 
   // when the screen is loaded
@@ -43,7 +47,7 @@ function Home(props) {
 
   return (
     <>
-      <div className="container main">
+      <div className="container">
         <div className="row mt-3">
           <form onSubmit={handleSearchSubmit}>
             <div className="input-group mb-3">
