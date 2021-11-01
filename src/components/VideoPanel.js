@@ -7,7 +7,7 @@ function VideoPanel(props) {
   return (
     <>
       <div className="card mt-3">
-        <LazyLoadImage alt={"GIF"} effect="blur" src={url} height={"100%"} />
+        <LazyLoadImage alt={"GIF"} effect="blur" src={url} height={"100%"} width={"100%"} />
       </div>
     </>
   );
