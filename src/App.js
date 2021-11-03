@@ -12,6 +12,7 @@ import { useState } from "react";
 function App() {
   const apiKey = process.env.REACT_APP_GIF_API_KEY;
   const [progress, setProgress] = useState(0);
+  const pageSize = 15;
   return (
     <>
       <Router>
@@ -33,7 +34,7 @@ function App() {
               <Contact />
             </Route>
             <Route exact path="/">
-              <Home apiKey={apiKey} tag="smile" setProgress={setProgress} />
+              <Home apiKey={apiKey} tag="smile" setProgress={setProgress} pageSize={pageSize} />
             </Route>
           </Switch>
         </div>

@@ -1,43 +1,43 @@
 import React, { useEffect, useState } from "react";
+import InfiniteScroll from "react-infinite-scroll-component";
 import Spinner from "./Spinner";
 import VideoPanel from "./VideoPanel";
+// import InfiniteScroll from "react-infinite-scroll-component";
 
 function Home(props) {
-  const { apiKey, tag ,setProgress } = props;
-
+  const { apiKey, tag, setProgress, pageSize } = props;
   const [urls, setUrls] = useState([]);
   const [searchTag, setsearchTag] = useState(tag);
   const [result, setResult] = useState(tag);
   const [loading, setloading] = useState(false);
+  const [offset, setoffset] = useState(0);
+  const [totalResult, settotalResult] = useState(0);
 
-  // Fetch the GIF from the api
-  const fetchGIFS = async () => {
+  const updateGIFS = async () => {
     setloading(true);
     setProgress(30);
-    const endpoint = `https://api.giphy.com/v1/gifs/search?api_key=${apiKey}&q=${searchTag}&limit=30&offset=0&rating=g&lang=hi`;
+    const endpoint = `https://api.giphy.com/v1/gifs/search?api_key=${apiKey}&q=${searchTag}&limit=${pageSize}&offset=${offset}&rating=g&lang=hi`;
     const result = await fetch(endpoint);
     setProgress(50);
-    const data = await result.json();
+    const parsedData = await result.json();
     setProgress(80);
-    setUrls(data.data);
-    setsearchTag("");
+    setUrls(urls.concat(parsedData.data));
+    settotalResult(parsedData.pagination.total_count);
     setloading(false);
     setProgress(100);
+    setoffset(offset + pageSize);
   };
 
-  // when the screen is loaded
   useEffect(() => {
-    fetchGIFS();
+    updateGIFS();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // fetch the new updated results on search submit
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    fetchGIFS();
+    updateGIFS();
   };
 
-  // user input from the search bar
   const handleSearchInput = (event) => {
     const tagValue = event.target.value;
     const resultValue = event.target.value;
@@ -66,18 +66,27 @@ function Home(props) {
             </div>
           </form>
         </div>
+        <InfiniteScroll
+          dataLength={urls.length}
+          next={updateGIFS}
+          hasMore={offset + pageSize < totalResult}
+          loader={Spinner}
+        ></InfiniteScroll>
         {loading && <Spinner />}
-        {!loading && <h1> Result for {result}</h1>}
-        <div className="row">
-          {!loading &&
-            urls.map((url) => {
-              return (
-                <div className="col-md-4">
-                  <VideoPanel key={url.id} url={url.images.original.webp} />
-                </div>
-              );
-            })}
-        </div>
+        {!loading && <h1 className="text-center"> Result for {result}</h1>}
+        {!loading && (
+          <>
+            <div className="row">
+              {urls.map((url) => {
+                return (
+                  <div className="col-md-4" key={url.id}>
+                    <VideoPanel url={url.images.original.webp} />
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
     </>
   );
