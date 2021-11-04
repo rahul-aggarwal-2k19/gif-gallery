@@ -28,6 +28,21 @@ function Home(props) {
     setoffset(offset + pageSize);
   };
 
+  const fetchGIF = async () => {
+    setloading(true);
+    setProgress(30);
+    const endpoint = `https://api.giphy.com/v1/gifs/search?api_key=${apiKey}&q=${searchTag}&limit=${pageSize}&offset=${offset}&rating=g&lang=hi`;
+    const result = await fetch(endpoint);
+    setProgress(50);
+    const parsedData = await result.json();
+    setProgress(80);
+    setUrls(parsedData.data);
+    settotalResult(parsedData.pagination.total_count);
+    setloading(false);
+    setProgress(100);
+    setoffset(offset + pageSize);
+  };
+
   useEffect(() => {
     updateGIFS();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -35,7 +50,11 @@ function Home(props) {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    updateGIFS();
+    const newResult = [];
+    setUrls(newResult);
+    setoffset(0);
+    console.log(urls);
+    fetchGIF();
   };
 
   const handleSearchInput = (event) => {
@@ -66,16 +85,15 @@ function Home(props) {
             </div>
           </form>
         </div>
+        <h1 className="text-center"> Result for {result}</h1>
+        {loading && <Spinner />}
         <InfiniteScroll
           dataLength={urls.length}
           next={updateGIFS}
           hasMore={offset + pageSize < totalResult}
           loader={Spinner}
-        ></InfiniteScroll>
-        {loading && <Spinner />}
-        {!loading && <h1 className="text-center"> Result for {result}</h1>}
-        {!loading && (
-          <>
+        >
+          <div className="container">
             <div className="row">
               {urls.map((url) => {
                 return (
@@ -85,8 +103,8 @@ function Home(props) {
                 );
               })}
             </div>
-          </>
-        )}
+          </div>
+        </InfiniteScroll>
       </div>
     </>
   );
